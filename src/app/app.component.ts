@@ -15,6 +15,15 @@ interface SavedState {
   budget?: number | null;
   weight?: number | null;
   auctionPrice?: number | null;
+  purchases?: unknown[];
+}
+
+interface Purchase {
+  id: string;
+  createdAt: string;
+  weight: number;
+  price: number;
+  total: number;
 }
 
 interface StatusMessage {
@@ -41,6 +50,10 @@ export class AppComponent {
   readonly budget = signal<number | null>(this.defaultBudget);
   readonly weight = signal<number | null>(null);
   readonly auctionPrice = signal<number | null>(null);
+  readonly purchases = signal<Purchase[]>([]);
+  readonly savedMessage = signal<string | null>(null);
+
+  private savedTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly activeView = signal<View>('calculadora');
   readonly sidebarOpen = signal(false);
@@ -124,6 +137,26 @@ export class AppComponent {
     };
   });
 
+  readonly purchasePrice = computed<number | null>(() => {
+    const auction = this.auctionPrice();
+    if (auction !== null && auction >= 0) {
+      return auction;
+    }
+    return this.maxPrice();
+  });
+
+  readonly canPurchase = computed(() => this.purchasePrice() !== null);
+
+  readonly purchaseCount = computed(() => this.purchases().length);
+
+  readonly purchaseKilos = computed(() =>
+    this.purchases().reduce((sum, purchase) => sum + purchase.weight, 0)
+  );
+
+  readonly purchaseAmount = computed(() =>
+    this.purchases().reduce((sum, purchase) => sum + purchase.total, 0)
+  );
+
   constructor() {
     afterNextRender(() => this.restore());
   }
@@ -160,6 +193,45 @@ export class AppComponent {
     this.save();
   }
 
+  addPurchase(): void {
+    const weight = this.weight();
+    const price = this.purchasePrice();
+    if (weight === null || weight <= 0 || price === null) {
+      return;
+    }
+    const purchase: Purchase = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: new Date().toISOString(),
+      weight,
+      price,
+      total: price * weight,
+    };
+    this.purchases.update((list) => [purchase, ...list]);
+    this.weight.set(null);
+    this.auctionPrice.set(null);
+    this.save();
+    this.savedMessage.set(
+      `Compra guardada · ${this.formatNumber(purchase.weight)} kg a ${this.money(purchase.price)}/kg`
+    );
+    if (this.savedTimer !== null) {
+      clearTimeout(this.savedTimer);
+    }
+    this.savedTimer = setTimeout(() => this.savedMessage.set(null), 3000);
+  }
+
+  removePurchase(id: string): void {
+    this.purchases.update((list) => list.filter((purchase) => purchase.id !== id));
+    this.save();
+  }
+
+  clearPurchases(): void {
+    if (isPlatformBrowser(this.platformId) && !window.confirm('¿Borrar todas las compras guardadas?')) {
+      return;
+    }
+    this.purchases.set([]);
+    this.save();
+  }
+
   adjustWeight(delta: number): void {
     this.setWeight(Math.max(0, (this.weight() ?? 0) + delta));
   }
@@ -188,6 +260,7 @@ export class AppComponent {
       budget: this.budget(),
       weight: this.weight(),
       auctionPrice: this.auctionPrice(),
+      purchases: this.purchases(),
     };
     localStorage.setItem(this.storageKey, JSON.stringify(state));
   }
@@ -211,16 +284,48 @@ export class AppComponent {
       if ('auctionPrice' in saved) {
         this.auctionPrice.set(this.toNumber(saved.auctionPrice));
       }
+      if (Array.isArray(saved.purchases)) {
+        this.purchases.set(
+          saved.purchases
+            .map((purchase) => this.toPurchase(purchase))
+            .filter((purchase): purchase is Purchase => purchase !== null)
+        );
+      }
     } catch {
       localStorage.removeItem(this.storageKey);
     }
+  }
+
+  private toPurchase(value: unknown): Purchase | null {
+    if (typeof value !== 'object' || value === null) {
+      return null;
+    }
+    const candidate = value as Partial<Purchase>;
+    if (
+      typeof candidate.weight !== 'number' ||
+      !Number.isFinite(candidate.weight) ||
+      typeof candidate.price !== 'number' ||
+      !Number.isFinite(candidate.price)
+    ) {
+      return null;
+    }
+    return {
+      id: typeof candidate.id === 'string' ? candidate.id : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: typeof candidate.createdAt === 'string' ? candidate.createdAt : new Date().toISOString(),
+      weight: candidate.weight,
+      price: candidate.price,
+      total:
+        typeof candidate.total === 'number' && Number.isFinite(candidate.total)
+          ? candidate.total
+          : candidate.weight * candidate.price,
+    };
   }
 
   private toNumber(value: unknown): number | null {
     return typeof value === 'number' && Number.isFinite(value) ? value : null;
   }
 
-  private money(value: number | null): string {
+  money(value: number | null): string {
     return value !== null && Number.isFinite(value)
       ? value.toLocaleString('es-CR', {
           style: 'currency',
@@ -230,9 +335,16 @@ export class AppComponent {
       : '—';
   }
 
-  private formatNumber(value: number | null): string {
+  formatNumber(value: number | null): string {
     return value !== null && Number.isFinite(value)
       ? value.toLocaleString('es-CR', { maximumFractionDigits: 2 })
       : '—';
+  }
+
+  formatDate(value: string): string {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+      ? '—'
+      : date.toLocaleString('es-CR', { dateStyle: 'short', timeStyle: 'short' });
   }
 }

@@ -137,6 +137,12 @@
                 <div class="sub">{{ maxHint() }}</div>
               </div>
               <div [class]="status().css">{{ status().text }}</div>
+              <button type="button" class="primary block purchase-btn" [disabled]="!canPurchase()" (click)="addPurchase()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                Lo compré
+              </button>
               <p class="note">El cálculo es: presupuesto ÷ peso = precio máximo por kilo. No incluye transporte, comisión, impuestos u otros gastos. Si tienes esos costos, réstalos primero del presupuesto para mantenerte dentro del monto total.</p>
             </div>
           </div>
@@ -167,6 +173,37 @@
               </div>
               <div [class]="status().css">{{ status().text }}</div>
             </div>
+          </div>
+
+          <div class="panel purchases-panel">
+            <div class="panel-head">
+              <h3>Compras realizadas</h3>
+              @if (purchaseCount() > 0) {
+                <button type="button" class="link-danger" (click)="clearPurchases()">Vaciar historial</button>
+              }
+            </div>
+
+            @if (purchaseCount() === 0) {
+              <p class="empty">Todavía no has guardado compras. Usa el botón «Lo compré» en la calculadora.</p>
+            } @else {
+              <div class="purchase-totals">
+                <div><small>Animales</small><strong>{{ purchaseCount() }}</strong></div>
+                <div><small>Kilos</small><strong>{{ formatNumber(purchaseKilos()) }} kg</strong></div>
+                <div><small>Total invertido</small><strong>{{ money(purchaseAmount()) }}</strong></div>
+              </div>
+              <ul class="purchase-list">
+                @for (purchase of purchases(); track purchase.id) {
+                  <li>
+                    <div class="purchase-main">
+                      <strong>{{ formatNumber(purchase.weight) }} kg</strong>
+                      <span>{{ money(purchase.price) }} / kg · Total {{ money(purchase.total) }}</span>
+                    </div>
+                    <time [attr.datetime]="purchase.createdAt">{{ formatDate(purchase.createdAt) }}</time>
+                    <button type="button" class="mini" (click)="removePurchase(purchase.id)" aria-label="Eliminar compra">×</button>
+                  </li>
+                }
+              </ul>
+            }
           </div>
         </section>
       }
@@ -199,10 +236,20 @@
               <div [class]="auctionStatus().css">{{ auctionStatus().text }}</div>
               <div class="row"><span>Peso del animal</span><strong>{{ weightSummary() }}</strong></div>
               <div class="row"><span>Tu límite por kilo</span><strong>{{ priceSummary() }}</strong></div>
+              <button type="button" class="primary block purchase-btn" [disabled]="!canPurchase()" (click)="addPurchase()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                Lo compré
+              </button>
             </div>
           </div>
         </section>
       }
     }
   </main>
+
+  @if (savedMessage()) {
+    <div class="toast" role="status">{{ savedMessage() }}</div>
+  }
 </div>

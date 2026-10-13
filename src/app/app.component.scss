@@ -154,7 +154,7 @@
   line-height: 1.4;
 }
 
-.sidebar-close {
+.icon-btn.sidebar-close {
   display: none;
   margin-left: auto;
   color: #d9e8dd;
@@ -384,6 +384,15 @@ button {
     transform: scale(0.98);
   }
 
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+
+    &:active {
+      transform: none;
+    }
+  }
+
   &.primary {
     background: #1c653a;
     color: #fff;
@@ -395,6 +404,22 @@ button {
     color: #7b3029;
     border-color: #ead0cd;
     white-space: nowrap;
+  }
+}
+
+.purchase-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 15px 18px;
+  font-size: 1.05rem;
+
+  svg {
+    width: 20px;
+    height: 20px;
+    flex: none;
   }
 }
 
@@ -446,6 +471,152 @@ button {
   margin: 12px 0 0;
 }
 
+/* ── Compras guardadas ───────────────────────────────────── */
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #17231d;
+  }
+}
+
+.link-danger {
+  border: 0;
+  background: transparent;
+  padding: 4px;
+  color: #a32e22;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:active {
+    transform: none;
+  }
+}
+
+.empty {
+  margin: 8px 0 0;
+  color: #66736a;
+  font-size: 0.9rem;
+}
+
+.purchase-totals {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1px solid #e1e8e2;
+    border-radius: 14px;
+    background: #f6faf7;
+  }
+
+  small {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #6f7d73;
+  }
+
+  strong {
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #14532d;
+  }
+}
+
+.purchase-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid #edf1ed;
+    border-radius: 14px;
+    background: #fbfdfb;
+  }
+
+  time {
+    font-size: 0.78rem;
+    color: #88948b;
+    white-space: nowrap;
+  }
+}
+
+.purchase-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+
+  strong {
+    font-size: 0.95rem;
+  }
+
+  span {
+    font-size: 0.82rem;
+    color: #66736a;
+  }
+}
+
+button.mini {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  padding: 0;
+  border-radius: 9px;
+  background: white;
+  color: #a32e22;
+  border-color: #ead0cd;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  max-width: min(92vw, 420px);
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #14532d;
+  color: #eaf5ed;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 14px 34px #14532d40;
+  animation: toast-in 0.2s ease;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .calc-grid {
@@ -464,7 +635,7 @@ button {
     }
   }
 
-  .sidebar-close {
+  .icon-btn.sidebar-close {
     display: grid;
   }
 
@@ -488,5 +659,13 @@ button {
 
   .actions {
     flex-direction: column;
+  }
+
+  .purchase-totals {
+    grid-template-columns: 1fr;
+  }
+
+  .purchase-list li {
+    flex-wrap: wrap;
   }
 }
