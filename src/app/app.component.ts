@@ -26,6 +26,12 @@ interface Purchase {
   total: number;
 }
 
+interface SuggestedPrice {
+  label: string;
+  total: number;
+  price: number;
+}
+
 interface StatusMessage {
   css: string;
   text: string;
@@ -46,6 +52,7 @@ export class AppComponent {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly storageKey = 'calculadora-subasta-ganado';
   private readonly defaultBudget = 0;
+  private readonly suggestedShares: readonly number[] = [0.9, 0.94];
 
   readonly budget = signal<number | null>(this.defaultBudget);
   readonly weight = signal<number | null>(null);
@@ -79,6 +86,19 @@ export class AppComponent {
   });
 
   readonly maxPriceText = computed(() => this.money(this.maxPrice()));
+
+  readonly suggestedPrices = computed<SuggestedPrice[]>(() => {
+    const budget = this.budget();
+    const weight = this.weight();
+    if (budget === null || budget <= 0 || weight === null || weight <= 0) {
+      return [];
+    }
+    return this.suggestedShares.map((share) => ({
+      label: `${Math.round(share * 100)} %`,
+      total: budget * share,
+      price: (budget * share) / weight,
+    }));
+  });
 
   readonly maxHint = computed(() => {
     const weight = this.weight();

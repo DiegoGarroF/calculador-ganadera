@@ -350,12 +350,71 @@ input {
 }
 
 .money {
-  font-size: clamp(2rem, 6vw, 3rem);
+  font-size: clamp(2rem, 6vw, 2.4rem);
   line-height: 1.1;
   font-weight: 900;
   letter-spacing: -0.04em;
   color: #14532d;
   margin: 8px 0;
+}
+
+.result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(180px, 0.6fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background: #f6faf7;
+  border: 1px solid #e1e8e2;
+  border-radius: 18px;
+
+  .small {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #6f7d73;
+    text-transform: uppercase;
+  }
+}
+
+.suggest-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 10px;
+  border-top: 1px solid #e6ede7;
+
+  strong {
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: #14532d;
+
+    small {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #476451;
+    }
+  }
+
+  span {
+    font-size: 0.74rem;
+    color: #66736a;
+    line-height: 1.35;
+  }
+}
+
+.suggest-empty {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #66736a;
+  line-height: 1.4;
 }
 
 .sub {
@@ -667,5 +726,9 @@ button.mini {
 
   .purchase-list li {
     flex-wrap: wrap;
+  }
+
+  .result-row {
+    grid-template-columns: 1fr;
   }
 }

@@ -131,10 +131,25 @@
             </div>
 
             <div class="panel result-panel">
-              <div class="result">
-                <div class="small">Tu precio máximo por kilo</div>
-                <div class="money">{{ maxPriceText() }}</div>
-                <div class="sub">{{ maxHint() }}</div>
+              <div class="result-row">
+                <div class="result">
+                  <div class="small">Tu precio máximo por kilo</div>
+                  <div class="money">{{ maxPriceText() }}</div>
+                  <div class="sub">{{ maxHint() }}</div>
+                </div>
+                <div class="suggest">
+                  <div class="small">Precio sugerido</div>
+                  @if (suggestedPrices().length) {
+                    @for (option of suggestedPrices(); track option.label) {
+                      <div class="suggest-item">
+                        <strong>{{ money(option.price) }}<small> / kg</small></strong>
+                        <span>Total {{ money(option.total) }} · {{ option.label }} del presupuesto</span>
+                      </div>
+                    }
+                  } @else {
+                    <p class="suggest-empty">Ingresa un peso para ver precios sugeridos.</p>
+                  }
+                </div>
               </div>
               <div [class]="status().css">{{ status().text }}</div>
               <button type="button" class="primary block purchase-btn" [disabled]="!canPurchase()" (click)="addPurchase()">
@@ -166,10 +181,25 @@
             </div>
 
             <div class="panel result-panel">
-              <div class="result">
-                <div class="small">Tu precio máximo por kilo</div>
-                <div class="money">{{ maxPriceText() }}</div>
-                <div class="sub">{{ maxHint() }}</div>
+              <div class="result-row">
+                <div class="result">
+                  <div class="small">Tu precio máximo por kilo</div>
+                  <div class="money">{{ maxPriceText() }}</div>
+                  <div class="sub">{{ maxHint() }}</div>
+                </div>
+                <div class="suggest">
+                  <div class="small">Precio sugerido</div>
+                  @if (suggestedPrices().length) {
+                    @for (option of suggestedPrices(); track option.label) {
+                      <div class="suggest-item">
+                        <strong>{{ money(option.price) }}<small> / kg</small></strong>
+                        <span>Total {{ money(option.total) }} · {{ option.label }} del presupuesto</span>
+                      </div>
+                    }
+                  } @else {
+                    <p class="suggest-empty">Ingresa un peso para ver precios sugeridos.</p>
+                  }
+                </div>
               </div>
               <div [class]="status().css">{{ status().text }}</div>
             </div>
